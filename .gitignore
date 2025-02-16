@@ -1,0 +1,36 @@
+env/
+.env
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyw   
+*.pyz
+
+# Temporal
+.temporal/
+.temporal/data/
+.temporal/data/namespace/
+
+# Docker
+.docker/
+
+# Logs
+logs/
+
+# IDE
+.vscode/
+.idea/
+
+# Temporal
+.temporal/
+
+*.db
+
+
+# Official Temporal Projects Examples
+money-transfer/
