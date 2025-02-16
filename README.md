@@ -1,2 +1,2 @@
-# temporal_shipment_delivery
-This is an example of temporal based micro-services for shipment delivery system
+# temporal_microservices
+This repository consists of temporal-based micro-service examples
