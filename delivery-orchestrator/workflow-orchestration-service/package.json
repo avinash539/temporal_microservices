@@ -1,0 +1,22 @@
+{
+  "name": "workflow-orchestration-service",
+  "version": "1.0.0",
+  "description": "Workflow orchestration service for order delivery",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/worker.ts",
+    "start": "node dist/worker.js"
+  },
+  "dependencies": {
+    "@temporalio/activity": "^1.8.0",
+    "@temporalio/client": "^1.8.0",
+    "@temporalio/worker": "^1.8.0",
+    "@temporalio/workflow": "^1.8.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.0"
+  }
+}

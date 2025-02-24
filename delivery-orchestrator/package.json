@@ -1,0 +1,23 @@
+{
+  "name": "delivery-orchestrator",
+  "version": "1.0.0",
+  "description": "Temporal-based microservices for order delivery orchestration",
+  "private": true,
+  "workspaces": [
+    "workflow-orchestration-service",
+    "atlas-service",
+    "distributor-service",
+    "client"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "dev": "npm run dev --workspaces --parallel"
+  },
+  "keywords": [
+    "temporal",
+    "microservices",
+    "typescript"
+  ],
+  "author": "",
+  "license": "ISC"
+}
