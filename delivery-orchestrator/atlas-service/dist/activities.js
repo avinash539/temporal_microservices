@@ -9,6 +9,7 @@ async function findEligiblePartner(orderData) {
     activity_1.Context.current().heartbeat('Evaluating partners...');
     // Simulating partner evaluation delay
     await new Promise(resolve => setTimeout(resolve, 1000));
+    throw new Error('Failed to find eligible partner');
     // Return a mock partner
     return {
         partnerId: 'partner-' + Math.random().toString(36).substr(2, 9),

@@ -4,47 +4,25 @@ const client_1 = require("@temporalio/client");
 async function run() {
     const client = new client_1.Client();
     // Example 1: Order with predefined partner
-    const orderWithPartner = {
-        orderId: 'order-123',
-        partnerId: 'partner-xyz',
-        orderDetails: {
-            items: [
-                { name: 'Product 1', quantity: 2 }
-            ],
-            deliveryAddress: '123 Main St, City'
-        }
-    };
-    // Example 2: Order without partner (needs partner discovery)
-    const orderWithoutPartner = {
-        orderId: 'order-456',
-        orderDetails: {
-            items: [
-                { name: 'Product 2', quantity: 1 }
-            ],
-            deliveryAddress: '456 Oak St, City'
-        }
+    const orderManifestationDetails = {
+        awbNumber: '12345',
+        systemOrderId: 1002651866,
+        courierId: 15,
+        riskType: 'OwnerRisk'
     };
     try {
         // Start workflow for order with partner
-        const handle1 = await client.workflow.start('orderDeliveryWorkflow', {
-            args: [orderWithPartner],
-            taskQueue: 'create-manifest',
-            workflowId: `delivery-${orderWithPartner.orderId}`,
+        const handle1 = await client.workflow.start('orderManifestationWorkflow', {
+            args: [orderManifestationDetails],
+            taskQueue: 'bigship-manifest-order-task-queue',
+            workflowId: `bigship-manifest-order-${orderManifestationDetails.awbNumber}`,
         });
         console.log(`Started workflow for order with partner: ${handle1.workflowId}`);
-        // Start workflow for order without partner
-        const handle2 = await client.workflow.start('orderDeliveryWorkflow', {
-            args: [orderWithoutPartner],
-            taskQueue: 'create-manifest',
-            workflowId: `delivery-${orderWithoutPartner.orderId}`,
-        });
-        console.log(`Started workflow for order without partner: ${handle2.workflowId}`);
         // Wait for both workflows to complete
         await Promise.all([
             handle1.result(),
-            handle2.result()
         ]);
-        console.log('Both workflows completed successfully');
+        console.log('Workflows completed successfully');
     }
     catch (err) {
         console.error('Error running workflows:', err);

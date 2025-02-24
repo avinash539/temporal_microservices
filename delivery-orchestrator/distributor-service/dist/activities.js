@@ -20,6 +20,7 @@ async function distributeOrder(orderData, partner) {
         // await axios.post(partner.config.apiEndpoint + '/orders', transformedOrder);
         // Context.current().heartbeat('Order sent successfully');
         console.log('Order sent successfully');
+        return orderData;
     }
     catch (error) {
         const errorMessage = error instanceof Error
