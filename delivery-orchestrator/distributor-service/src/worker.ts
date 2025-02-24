@@ -6,10 +6,10 @@ async function run() {
     activities: {
       distributeOrder,
     },
-    taskQueue: 'create-manifest',
+    taskQueue: 'distributor-service-task-queue',
   });
 
-  console.log('Distributor service worker started, listening to task queue: distributor-service');
+  console.log('Distributor service worker started, listening to task queue: distributor-service-task-queue');
   await worker.run();
 }
 

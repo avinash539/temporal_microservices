@@ -1,13 +1,14 @@
 import { Worker } from '@temporalio/worker';
-import * as workflows from './workflows';
-
+// import * as workflows from './workflows';
+// import * as manifestationWorkflow from './manifestation-workflow';
 async function run() {
     const worker = await Worker.create({
         workflowsPath: require.resolve('./workflows'),
-        taskQueue: 'create-manifest',
+        // workflowsPath: require.resolve('./manifestation-workflow'),
+        taskQueue: 'new-order-task-queue',
     });
 
-    console.log('Worker started, listening to task queue: order-delivery');
+    console.log('Worker started, listening to task queue: bigship-manifest-order-task-queue');
     await worker.run();
 }
 

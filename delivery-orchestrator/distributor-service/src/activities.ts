@@ -1,6 +1,3 @@
-import { Context } from '@temporalio/activity';
-import axios from 'axios';
-
 interface OrderData {
   orderId: string;
   partnerId?: string;

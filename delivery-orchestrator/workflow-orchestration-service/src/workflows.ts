@@ -22,11 +22,19 @@ interface Activities {
 // });
 const { findEligiblePartner } = proxyActivities<Activities>({
     startToCloseTimeout: '1 minute',
-    taskQueue: 'create-manifest'
+    taskQueue: 'atlas-service-task-queue',
+    retry: {
+        maximumAttempts: 3,
+        backoffCoefficient: 2,
+    }
 });
 const { distributeOrder } = proxyActivities<Activities>({
     startToCloseTimeout: '1 minute',
-    taskQueue: 'create-manifest'
+    taskQueue: 'distributor-service-task-queue',
+    retry: {
+        maximumAttempts: 3,
+        backoffCoefficient: 2,
+    }
 });
 
 export async function orderDeliveryWorkflow(orderData: OrderData): Promise<void> {

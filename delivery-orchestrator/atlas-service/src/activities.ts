@@ -20,6 +20,7 @@ export async function findEligiblePartner(orderData: OrderData): Promise<Network
 
   // Simulating partner evaluation delay
   await new Promise(resolve => setTimeout(resolve, 1000));
+  throw new Error('Failed to find eligible partner');
 
   // Return a mock partner
   return {

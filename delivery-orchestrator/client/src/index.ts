@@ -1,60 +1,38 @@
 import { Client } from '@temporalio/client';
 
-interface OrderData {
-    orderId: string;
-    partnerId?: string;
-    orderDetails: Record<string, any>;
+interface OrderManifestationDetails {
+    awbNumber: string;
+    systemOrderId: number;
+    courierId: number;
+    riskType: string;
 }
 
 async function run() {
     const client = new Client();
 
     // Example 1: Order with predefined partner
-    const orderWithPartner: OrderData = {
-        orderId: 'order-112',
-        partnerId: 'partner-xyz',
-        orderDetails: {
-            items: [
-                { name: 'Product 1', quantity: 2 }
-            ],
-            deliveryAddress: '123 Main St, City'
-        }
-    };
-
-    // Example 2: Order without partner (needs partner discovery)
-    const orderWithoutPartner: OrderData = {
-        orderId: 'order-113',
-        orderDetails: {
-            items: [
-                { name: 'Product 2', quantity: 1 }
-            ],
-            deliveryAddress: '456 Oak St, City'
-        }
+    const orderManifestationDetails: OrderManifestationDetails = {
+        awbNumber: '12345',
+        systemOrderId: 1002651866,
+        courierId: 15,
+        riskType: 'OwnerRisk'
     };
 
     try {
         // Start workflow for order with partner
-        const handle1 = await client.workflow.start('orderDeliveryWorkflow', {
-            args: [orderWithPartner],
-            taskQueue: 'create-manifest',
-            workflowId: `delivery-${orderWithPartner.orderId}`,
+        const handle1 = await client.workflow.start('orderManifestationWorkflow', {
+            args: [orderManifestationDetails],
+            taskQueue: 'bigship-manifest-order-task-queue',
+            workflowId: `bigship-manifest-order-${orderManifestationDetails.awbNumber}`,
         });
         console.log(`Started workflow for order with partner: ${handle1.workflowId}`);
 
-        // Start workflow for order without partner
-        const handle2 = await client.workflow.start('orderDeliveryWorkflow', {
-            args: [orderWithoutPartner],
-            taskQueue: 'create-manifest',
-            workflowId: `delivery-${orderWithoutPartner.orderId}`,
-        });
-        console.log(`Started workflow for order without partner: ${handle2.workflowId}`);
 
         // Wait for both workflows to complete
         await Promise.all([
             handle1.result(),
-            handle2.result()
         ]);
-        console.log('Both workflows completed successfully');
+        console.log('Workflows completed successfully');
 
     } catch (err) {
         console.error('Error running workflows:', err);
