@@ -11,7 +11,7 @@ async function run() {
 
     // Example 1: Order with predefined partner
     const orderWithPartner: OrderData = {
-        orderId: '1188',
+        orderId: '11899',
         partnerId: 'partner-xyz',
         orderDetails: {
             items: [
@@ -23,7 +23,7 @@ async function run() {
 
     // Example 2: Order without partner (needs partner discovery)
     const orderWithoutPartner: OrderData = {
-        orderId: '1199',
+        orderId: '331233',
         orderDetails: {
             items: [
                 { name: 'Product 2', quantity: 1 }
@@ -34,24 +34,24 @@ async function run() {
 
     try {
         // Start workflow for order with partner
-        const handle1 = await client.workflow.start('orderDeliveryWorkflow', {
-            args: [orderWithPartner],
-            taskQueue: 'new-order-task-queue',
-            workflowId: `new-order-${orderWithPartner.orderId}`,
-        });
-        console.log(`Started workflow for order with partner: ${handle1.workflowId}`);
+        // const handle1 = await client.workflow.start('orderDeliveryWorkflow', {
+        //     args: [orderWithPartner],
+        //     taskQueue: 'new-order-task-queue',
+        //     workflowId: `new-order-${orderWithPartner.orderId}`,
+        // });
+        // console.log(`Started workflow for order with partner: ${handle1.workflowId}`);
 
         // Start workflow for order without partner
         const handle2 = await client.workflow.start('orderDeliveryWorkflow', {
             args: [orderWithoutPartner],
             taskQueue: 'new-order-task-queue',
-            workflowId: `new-order-${orderWithoutPartner.orderId}`,
+            workflowId: `order-${orderWithoutPartner.orderId}`,
         });
         console.log(`Started workflow for order without partner: ${handle2.workflowId}`);
 
         // Wait for both workflows to complete
         await Promise.all([
-            handle1.result(),
+            // handle1.result(),
             handle2.result()
         ]);
         console.log('Both workflows completed successfully');

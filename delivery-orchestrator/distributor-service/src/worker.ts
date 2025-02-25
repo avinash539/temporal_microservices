@@ -1,10 +1,11 @@
 import { Worker } from '@temporalio/worker';
-import { distributeOrder } from './activities';
+import { distributeOrder, attemptPartnerDistribution } from './activities';
 
 async function run() {
   const worker = await Worker.create({
     activities: {
       distributeOrder,
+      attemptPartnerDistribution,
     },
     taskQueue: 'distributor-service-task-queue',
   });
