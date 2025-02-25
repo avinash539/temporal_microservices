@@ -30,6 +30,7 @@ logs/
 .temporal/
 
 *.db
+*.js
 
 # Official Temporal Projects Examples
 money-transfer/
