@@ -54,11 +54,11 @@ const { attemptPartnerDistribution } = proxyActivities<Activities>({
     taskQueue: 'distributor-service-task-queue',
     retry: {
         maximumAttempts: 3,
-        backoffCoefficient: 8,
+        backoffCoefficient: 30,
     }
 });
 
-const MAX_RETRIES_PER_PARTNER = 3;
+const MAX_RETRIES_PER_PARTNER = 1;
 
 export async function orderDeliveryWorkflow(orderData: OrderData): Promise<DistributionResult> {
     // Get eligible delivery partners

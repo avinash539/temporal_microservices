@@ -6,6 +6,7 @@ async function run() {
     const worker = await worker_1.Worker.create({
         activities: {
             distributeOrder: activities_1.distributeOrder,
+            attemptPartnerDistribution: activities_1.attemptPartnerDistribution,
         },
         taskQueue: 'distributor-service-task-queue',
     });

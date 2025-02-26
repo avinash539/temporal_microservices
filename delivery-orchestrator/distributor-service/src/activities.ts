@@ -35,6 +35,8 @@ export async function attemptPartnerDistribution(
   totalPartners: number,
   retryAttempt: number
 ): Promise<DistributionResult> {
+  // throw new Error("error: Service crashed")
+
   const activity = Context.current();
 
   activity.heartbeat(

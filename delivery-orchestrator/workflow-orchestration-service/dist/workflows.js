@@ -2,75 +2,53 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.orderDeliveryWorkflow = orderDeliveryWorkflow;
 const workflow_1 = require("@temporalio/workflow");
-// const { findEligiblePartner, distributeOrder } = proxyActivities<Activities>({
-//     startToCloseTimeout: '1 minute',
-// });
 const { findEligiblePartner } = (0, workflow_1.proxyActivities)({
-    startToCloseTimeout: '1 minute',
+    startToCloseTimeout: '60 seconds',
     taskQueue: 'atlas-service-task-queue',
     retry: {
-        maximumAttempts: 3,
+        maximumAttempts: 5,
         backoffCoefficient: 2,
     }
 });
-const { distributeOrder } = (0, workflow_1.proxyActivities)({
-    startToCloseTimeout: '1 minute',
+const { attemptPartnerDistribution } = (0, workflow_1.proxyActivities)({
+    startToCloseTimeout: '60 seconds',
     taskQueue: 'distributor-service-task-queue',
     retry: {
         maximumAttempts: 3,
-        backoffCoefficient: 2,
+        backoffCoefficient: 30,
     }
 });
-// Define the retry signal
-const retryActivitySignal = (0, workflow_1.defineSignal)('retryActivity');
+const MAX_RETRIES_PER_PARTNER = 1;
 async function orderDeliveryWorkflow(orderData) {
-    let partner;
-    let retrySignalReceived = false;
-    let retryAttempts = 0;
-    const MAX_RETRY_ATTEMPTS = 3;
-    // Set up signal handler for retry
-    (0, workflow_1.setHandler)(retryActivitySignal, () => {
-        console.log('Retry signal received');
-        retrySignalReceived = true;
-    });
-    while (!partner && retryAttempts < MAX_RETRY_ATTEMPTS) {
-        try {
-            if (orderData.partnerId) {
-                // Scenario 1: Order already has a partner assigned
-                partner = {
-                    partnerId: orderData.partnerId,
-                    name: 'predefined-partner',
-                    config: {}
-                };
+    // Get eligible delivery partners
+    const partners = await findEligiblePartner(orderData);
+    // Try each partner in sequence
+    for (let i = 0; i < partners.length; i++) {
+        const partner = partners[i];
+        const partnerAttemptNumber = i + 1;
+        // Try this partner up to MAX_RETRIES_PER_PARTNER times
+        for (let retryAttempt = 1; retryAttempt <= MAX_RETRIES_PER_PARTNER; retryAttempt++) {
+            try {
+                // Attempt distribution with this partner
+                const result = await attemptPartnerDistribution(orderData, partner, partnerAttemptNumber, partners.length, retryAttempt);
+                // If successful, return the result
+                return result;
             }
-            else {
-                // Scenario 2: Need to find eligible partner through Atlas service
-                partner = await findEligiblePartner(orderData);
-            }
-        }
-        catch (error) {
-            retryAttempts++;
-            console.log(`Activity failed, attempt ${retryAttempts} of ${MAX_RETRY_ATTEMPTS}`);
-            if (retryAttempts < MAX_RETRY_ATTEMPTS) {
-                // Wait for retry signal with a timeout
-                const signalTimeout = 300; // 5 minutes in seconds
-                let timeWaited = 0;
-                while (!retrySignalReceived && timeWaited < signalTimeout) {
-                    await (0, workflow_1.sleep)('1 second');
-                    timeWaited++;
+            catch (error) {
+                // If we haven't exhausted retries for this partner, continue to next retry
+                if (retryAttempt < MAX_RETRIES_PER_PARTNER) {
+                    continue;
                 }
-                if (!retrySignalReceived) {
-                    console.log('No retry signal received within timeout, continuing to next attempt');
+                // If we've exhausted retries for this partner
+                if (i === partners.length - 1) {
+                    // If this was the last partner, throw the error
+                    throw new Error(`All partners failed. Last partner ${partner.name} failed after ${MAX_RETRIES_PER_PARTNER} attempts. Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
                 }
-                // Reset signal flag for next attempt
-                retrySignalReceived = false;
+                // Move to next partner
+                break;
             }
         }
     }
-    if (partner) {
-        await distributeOrder(orderData, partner);
-    }
-    else {
-        throw new Error(`Failed to find eligible partner after ${MAX_RETRY_ATTEMPTS} attempts`);
-    }
+    // This should never be reached due to the error handling above
+    throw new Error('No partners available to process the order');
 }
